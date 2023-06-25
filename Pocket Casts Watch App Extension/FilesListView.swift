@@ -3,7 +3,7 @@ import SwiftUI
 struct FilesListView: View {
     @StateObject var viewModel = FilesListViewModel()
     var body: some View {
-        ItemListContainer(isEmpty: $viewModel.episodes.isEmpty, loading: viewModel.isLoading) {
+        ItemListContainer(isEmpty: viewModel.episodes.isEmpty, loading: viewModel.isLoading) {
             ScrollView {
                 LazyVStack {
                     EpisodeListView(title: L10n.settingsFiles.prefixSourceUnicode, showArtwork: true, episodes: $viewModel.episodes)

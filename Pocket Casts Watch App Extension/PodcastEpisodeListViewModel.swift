@@ -23,7 +23,7 @@ class PodcastEpisodeListViewModel: ObservableObject {
     }
 
     @Published var podcast: Podcast
-    @Published var episodes: [EpisodeRowViewModel] = []
+    @Published var episodes = LazyEpisodeRowViewModels()
 
     var sortOption: PodcastEpisodeSortOrder {
         PodcastEpisodeSortOrder(rawValue: podcast.episodeSortOrder) ?? .newestToOldest
@@ -52,8 +52,7 @@ class PodcastEpisodeListViewModel: ObservableObject {
         $podcast
             .compactMap { podcast in
                 let query = Self.createEpisodesQuery(forPodcast: podcast)
-                return DataManager.sharedManager.findEpisodesWhere(customWhere: query, arguments: nil)
-                    .map { EpisodeRowViewModel(episode: $0) }
+                return LazyEpisodeRowViewModels(DataManager.sharedManager.findEpisodesWhere(customWhere: query, arguments: nil))
             }
             .receive(on: RunLoop.main)
             .assign(to: &$episodes)

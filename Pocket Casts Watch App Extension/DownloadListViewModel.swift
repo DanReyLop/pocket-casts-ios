@@ -4,7 +4,7 @@ import PocketCastsDataModel
 
 class DownloadListViewModel: ObservableObject {
     @Published var isLoading: Bool = false
-    @Published var episodes: [EpisodeRowViewModel] = []
+    @Published var episodes = LazyEpisodeRowViewModels()
     let playSourceViewModel = PlaySourceHelper.playSourceViewModel
     private var cancellables = Set<AnyCancellable>()
 
@@ -21,7 +21,7 @@ class DownloadListViewModel: ObservableObject {
         playSourceViewModel.fetchDownloadedEpisodes()
             .replaceError(with: [])
             .map {
-                $0.map { EpisodeRowViewModel(episode: $0) }
+                LazyEpisodeRowViewModels($0)
             }
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] episodes in

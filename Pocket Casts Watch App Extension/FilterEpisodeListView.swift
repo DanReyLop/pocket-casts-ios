@@ -27,7 +27,7 @@ struct FilterEpisodeListView: View {
 
     var body: some View {
         headerWithContent {
-            ItemListContainer(isEmpty: $viewModel.episodes.isEmpty, loading: viewModel.isLoading) {
+            ItemListContainer(isEmpty: viewModel.episodes.isEmpty, loading: viewModel.isLoading) {
                 EpisodeListView(title: L10n.settingsFiles.prefixSourceUnicode, showArtwork: true, episodes: $viewModel.episodes)
             }
         }
@@ -52,7 +52,7 @@ struct FilterEpisodeListView: View {
 
     func headerWithContent<T: View>(@ViewBuilder _ content: () -> T) -> some View {
         Group {
-            if viewModel.isLoading || $viewModel.episodes.isEmpty {
+            if viewModel.isLoading || viewModel.episodes.isEmpty {
                 VStack {
                     header
                         .frame(maxWidth: .infinity, alignment: .leading)

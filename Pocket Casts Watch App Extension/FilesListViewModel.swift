@@ -4,7 +4,7 @@ import PocketCastsDataModel
 
 class FilesListViewModel: ObservableObject {
     @Published var isLoading: Bool = false
-    @Published var episodes: [EpisodeRowViewModel]
+    @Published var episodes: LazyEpisodeRowViewModels
     @Published var sortOrder: UploadedSort {
         willSet {
             playSource.userEpisodeSortOrder = newValue
@@ -19,7 +19,7 @@ class FilesListViewModel: ObservableObject {
     }
 
     init() {
-        episodes = []
+        episodes = LazyEpisodeRowViewModels()
         sortOrder = playSource.userEpisodeSortOrder
 
         Publishers.Merge3(
@@ -44,7 +44,7 @@ class FilesListViewModel: ObservableObject {
         playSource.fetchUserEpisodes(forOrder: forOrder)
             .replaceError(with: [])
             .map {
-                $0.map { EpisodeRowViewModel(episode: $0) }
+                LazyEpisodeRowViewModels($0)
             }
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] episodes in

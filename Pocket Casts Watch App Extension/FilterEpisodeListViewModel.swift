@@ -3,7 +3,7 @@ import Foundation
 
 class FilterEpisodeListViewModel: ObservableObject {
     @Published var isLoading: Bool = false
-    @Published var episodes: [EpisodeRowViewModel]
+    @Published var episodes: LazyEpisodeRowViewModels
     private var playSource = PlaySourceHelper.playSourceViewModel
     private var cancellables = Set<AnyCancellable>()
     let filter: Filter
@@ -15,7 +15,7 @@ class FilterEpisodeListViewModel: ObservableObject {
 
     init(filter: Filter) {
         self.filter = filter
-        episodes = []
+        episodes = LazyEpisodeRowViewModels()
 
         Publishers.Notification.dataUpdated
             .sink { [unowned self] _ in
@@ -29,7 +29,7 @@ class FilterEpisodeListViewModel: ObservableObject {
         playSource.fetchFilterEpisodes(filter)
             .replaceError(with: [])
             .map {
-                $0.map { EpisodeRowViewModel(episode: $0) }
+                LazyEpisodeRowViewModels($0)
             }
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] episodes in

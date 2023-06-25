@@ -6,13 +6,13 @@ class UpNextViewModel: ObservableObject {
     @Published var isPlaying: Bool
     @Published var isEmpty: Bool = false
     @Published var upNextTitle: String?
-    @Published var episodes: [EpisodeRowViewModel]
+    @Published var episodes: LazyEpisodeRowViewModels
     private var playSource = PlaySourceHelper.playSourceViewModel
     private var cancellables = Set<AnyCancellable>()
 
     init() {
         upNextTitle = playSource.nowPlayingEpisode?.subTitle()
-        episodes = playSource.episodesInQueue.map { EpisodeRowViewModel(episode: $0) }
+        episodes = LazyEpisodeRowViewModels(playSource.episodesInQueue)
         isPlaying = playSource.isPlaying
 
         Publishers.Notification.playbackChanged
@@ -37,7 +37,7 @@ class UpNextViewModel: ObservableObject {
         .receive(on: RunLoop.main)
         .sink { [unowned self] _ in
             self.upNextTitle = playSource.nowPlayingEpisode?.subTitle()
-            self.episodes = playSource.episodesInQueue.map { EpisodeRowViewModel(episode: $0) }
+            self.episodes = LazyEpisodeRowViewModels(playSource.episodesInQueue)
             self.isPlaying = playSource.isPlaying
         }
         .store(in: &cancellables)
