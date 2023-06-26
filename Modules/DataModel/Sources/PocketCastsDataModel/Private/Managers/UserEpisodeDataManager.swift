@@ -108,6 +108,28 @@ class UserEpisodeDataManager {
         return loadMultiple(query: "SELECT \(userEpisodeTableName).* FROM \(upNextTableName) JOIN \(userEpisodeTableName) ON \(userEpisodeTableName).uuid = \(upNextTableName).episodeUuid ORDER BY \(upNextTableName).episodePosition ASC", values: nil, dbQueue: dbQueue)
     }
 
+    func allUpNextEpisodeStubs(dbQueue: FMDatabaseQueue) -> [UserEpisodeStub] {
+        let upNextTableName = DataManager.playlistEpisodeTableName
+        let userEpisodeTableName = DataManager.userEpisodeTableName
+        let query = "SELECT \(userEpisodeTableName).uuid FROM \(upNextTableName) JOIN \(userEpisodeTableName) ON \(userEpisodeTableName).uuid = \(upNextTableName).episodeUuid ORDER BY \(upNextTableName).episodePosition ASC"
+
+        var stubs = [UserEpisodeStub]()
+        dbQueue.inDatabase { db in
+            do {
+                let resultSet = try db.executeQuery(query, values: nil)
+                defer { resultSet.close() }
+
+                while resultSet.next() {
+                    let uuid = DBUtils.nonNilStringFromColumn(resultSet: resultSet, columnName: "uuid")
+                    stubs.append(UserEpisodeStub(uuid: uuid))
+                }
+            } catch {
+                FileLog.shared.addMessage("UserEpisodeDataManager.allUpNextEpisodeStubs Error: \(error)")
+            }
+        }
+        return stubs
+    }
+
     private func loadSingle(query: String, values: [Any]?, dbQueue: FMDatabaseQueue) -> UserEpisode? {
         var episode: UserEpisode?
         dbQueue.inDatabase { db in

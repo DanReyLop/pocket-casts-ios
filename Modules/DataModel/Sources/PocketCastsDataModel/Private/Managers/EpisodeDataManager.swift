@@ -105,6 +105,28 @@ class EpisodeDataManager {
         return loadMultiple(query: "SELECT \(episodeTableName).* FROM \(upNextTableName) JOIN \(episodeTableName) ON \(episodeTableName).uuid = \(upNextTableName).episodeUuid ORDER BY \(upNextTableName).episodePosition ASC", values: nil, dbQueue: dbQueue)
     }
 
+    func allUpNextEpisodeStubs(dbQueue: FMDatabaseQueue) -> [EpisodeStub] {
+        let upNextTableName = DataManager.playlistEpisodeTableName
+        let episodeTableName = DataManager.episodeTableName
+        let query = "SELECT \(episodeTableName).uuid FROM \(upNextTableName) JOIN \(episodeTableName) ON \(episodeTableName).uuid = \(upNextTableName).episodeUuid ORDER BY \(upNextTableName).episodePosition ASC"
+
+        var stubs = [EpisodeStub]()
+        dbQueue.inDatabase { db in
+            do {
+                let resultSet = try db.executeQuery(query, values: nil)
+                defer { resultSet.close() }
+
+                while resultSet.next() {
+                    let uuid = DBUtils.nonNilStringFromColumn(resultSet: resultSet, columnName: "uuid")
+                    stubs.append(EpisodeStub(uuid: uuid))
+                }
+            } catch {
+                FileLog.shared.addMessage("EpisodeDataManager.allUpNextEpisodeStubs Error: \(error)")
+            }
+        }
+        return stubs
+    }
+
     private func loadSingle(query: String, values: [Any]?, dbQueue: FMDatabaseQueue) -> Episode? {
         var episode: Episode?
         dbQueue.inDatabase { db in

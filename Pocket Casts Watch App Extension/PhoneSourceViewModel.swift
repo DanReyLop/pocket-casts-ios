@@ -198,7 +198,7 @@ class PhoneSourceViewModel: PlaySourceViewModel {
 
     // MARK: Up Next
 
-    var episodesInQueue: [BaseEpisode] {
+    var episodesInQueue: [BaseEpisodeStub] {
         WatchDataManager.upNextEpisodes() ?? []
     }
 

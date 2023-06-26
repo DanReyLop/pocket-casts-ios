@@ -255,6 +255,17 @@ class PlaybackQueue: NSObject {
         return episodes
     }
 
+    func allEpisodeStubs(includeNowPlaying: Bool = true) -> [BaseEpisodeStub] {
+        if includeNowPlaying { return DataManager.sharedManager.allUpNextEpisodeStubs() }
+
+        var episodes = DataManager.sharedManager.allUpNextEpisodeStubs()
+        if episodes.count == 0 { return episodes }
+
+        episodes.removeFirst()
+
+        return episodes
+    }
+
     func currentEpisode() -> BaseEpisode? {
         topEpisode
     }

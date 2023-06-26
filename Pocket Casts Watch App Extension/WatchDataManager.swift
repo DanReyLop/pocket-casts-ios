@@ -26,12 +26,18 @@ class WatchDataManager {
         return nil
     }
 
-    class func upNextEpisodes() -> [BaseEpisode]? {
+    class func upNextEpisodes() -> [BaseEpisodeStub]? {
         if let data = UserDefaults.standard.object(forKey: WatchConstants.UserDefaults.data) as? [String: Any], let upNextEpisodes = data[WatchConstants.Keys.upNextInfo] as? [[String: Any]] {
-            var convertedEpisodes = [BaseEpisode]()
+            var convertedEpisodes = [BaseEpisodeStub]()
             for episode in upNextEpisodes {
-                if let convertedEpisode = convertToEpisode(json: episode) {
-                    convertedEpisodes.append(convertedEpisode)
+                guard let type = episode[WatchConstants.Keys.episodeTypeKey] as? String, let episodeMap = episode[WatchConstants.Keys.episodeSerialisedKey] as? [String: String] else {
+                    continue
+                }
+
+                if type == "Episode" {
+                    convertedEpisodes.append(EpisodeStub(uuid: episodeMap["uuid"] ?? ""))
+                } else {
+                    convertedEpisodes.append(UserEpisodeStub(uuid: episodeMap["uuid"] ?? ""))
                 }
             }
 
@@ -57,7 +63,7 @@ class WatchDataManager {
         if let upNextEpisodes = upNextEpisodes() {
             for episode in upNextEpisodes {
                 if episode.uuid == uuid {
-                    return episode
+                    return episode.fetch()
                 }
             }
         }

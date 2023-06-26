@@ -200,8 +200,8 @@ class WatchSourceViewModel: PlaySourceViewModel {
 
     // MARK: Up Next
 
-    var episodesInQueue: [BaseEpisode] {
-        PlaybackManager.shared.allEpisodesInQueue(includeNowPlaying: false)
+    var episodesInQueue: [BaseEpisodeStub] {
+        PlaybackManager.shared.allEpisodeStubsInQueue(includeNowPlaying: false)
     }
 
     func clearUpNext() {

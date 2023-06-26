@@ -1175,6 +1175,10 @@ class PlaybackManager: ServerPlaybackDelegate {
         queue.allEpisodes(includeNowPlaying: includeNowPlaying)
     }
 
+    func allEpisodeStubsInQueue(includeNowPlaying: Bool) -> [BaseEpisodeStub] {
+        queue.allEpisodeStubs(includeNowPlaying: includeNowPlaying)
+    }
+
     func upNextQueueChanged() {
         NotificationCenter.postOnMainThread(notification: Constants.Notifications.upNextQueueChanged)
     }

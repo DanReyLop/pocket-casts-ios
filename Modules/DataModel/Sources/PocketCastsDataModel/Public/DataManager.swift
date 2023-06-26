@@ -72,25 +72,43 @@ public class DataManager {
         let userEpisodes = userEpisodeManager.allUpNextEpisodes(dbQueue: dbQueue)
 
         // this extra step is to make sure we return the episodes in the order they are in the up next list, which they won't be if there's both Episodes and UserEpisodes in Up Next
-        var convertedEpisodes = [BaseEpisode]()
+        return mergePlaylist(playlistEpisodes: allUpNextEpisodes, episodes: episodes, userEpisodes: userEpisodes) { lhs, rhs in
+            lhs.episodeUuid == rhs.uuid
+        }
+    }
+
+    public func allUpNextEpisodeStubs() -> [any BaseEpisodeStub] {
+        let allUpNextEpisodes = upNextManager.allUpNextPlaylistEpisodes(dbQueue: dbQueue)
+        if allUpNextEpisodes.count == 0 { return [BaseEpisodeStub]() }
+
+        let episodeStubs = episodeManager.allUpNextEpisodeStubs(dbQueue: dbQueue)
+        let userEpisodeStubs = userEpisodeManager.allUpNextEpisodeStubs(dbQueue: dbQueue)
+
+        // this extra step is to make sure we return the episodes in the order they are in the up next list, which they won't be if there's both Episodes and UserEpisodes in Up Next
+        return mergePlaylist(playlistEpisodes: allUpNextEpisodes, episodes: episodeStubs, userEpisodes: userEpisodeStubs) { lhs, rhs in
+            lhs.episodeUuid == rhs.uuid
+        }
+    }
+
+    private func mergePlaylist<T>(playlistEpisodes: [PlaylistEpisode], episodes: [T], userEpisodes: [T], equalityFunc: (_ lhs: PlaylistEpisode, _ rhs: T) -> Bool) -> [T] {
+        var convertedEpisodes = [T]()
         var episodeIndex = 0
         var userEpisodeIndex = 0
-        for upNextEpisode in allUpNextEpisodes {
+        for playlistEpisode in playlistEpisodes {
             if let episode = episodes[safe: episodeIndex] {
-                if episode.uuid == upNextEpisode.episodeUuid {
+                if equalityFunc(playlistEpisode, episode) {
                     convertedEpisodes.append(episode)
                     episodeIndex += 1
                     continue
                 }
             }
             if let userEpisode = userEpisodes[safe: userEpisodeIndex] {
-                if userEpisode.uuid == upNextEpisode.episodeUuid {
+                if equalityFunc(playlistEpisode, userEpisode) {
                     convertedEpisodes.append(userEpisode)
                     userEpisodeIndex += 1
                 }
             }
         }
-
         return convertedEpisodes
     }
 
