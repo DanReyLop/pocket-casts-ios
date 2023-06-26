@@ -1188,7 +1188,7 @@ class PlaybackManager: ServerPlaybackDelegate {
     }
 
     func removeLastEpisodeFromUpNext() {
-        guard let lastEpisode = queue.allEpisodes().last else { return }
+        guard let lastEpisode = queue.allEpisodeStubs().last else { return }
 
         queue.remove(uuid: lastEpisode.uuid, fireNotification: true)
     }
